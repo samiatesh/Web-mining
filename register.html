@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ثبت‌نام</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .register-box {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+            width: 300px;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #333;
+            color: #fff;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .login-button {
+            margin-top: 10px;
+            background-color: #00aaff;
+        }
+
+        .login-button:hover {
+            background-color: #008bbf;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="register-box">
+            <h2>ثبت‌نام</h2>
+             {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flashes">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+
+            <form action="/register" method="POST">
+                <input type="text" name="first_name" placeholder="نام" required>
+                <input type="text" name="last_name" placeholder="نام خانوادگی" required>
+                <input type="email" name="email" placeholder="ایمیل" required>
+                <input type="password" name="password" placeholder="رمز عبور" required>
+ <input type="text" name="referral_link" value="{{ referral_code }}" readonly>
+        
+                <button type="submit">ثبت‌نام</button>
+            </form>
+            <button class="login-button" onclick="window.location.href='/login'">قبلاً ثبت‌نام کرده‌اید؟ ورود کنید</button>
+        </div>
+    </div>
+</body>
+</html>
