@@ -7,12 +7,19 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import logging
 import os
+from database import init_db
+
+
 
 
 app = Flask(__name__)
 
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.secret_key = 'your_secret_key'
+print("🚀 اجرای `init_db()` برای ایجاد جداول...")
+init_db()
+print("✅ دیتابیس ایجاد شد!")
+
 # انتخاب مسیر دیتابیس بر اساس محیط اجرا (لوکال یا Render)
 if os.getenv("RENDER"):  
     DATABASE_PATH = "/data/database.db"  # مسیر برای محیط Render
