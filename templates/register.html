@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود به حساب</title>
+    <title>ثبت‌نام</title>
     <style>
         body {
             background-color: #121212;
@@ -20,7 +20,7 @@
             text-align: center;
         }
 
-        .login-box {
+        .register-box {
             background: #1e1e1e;
             padding: 20px;
             border-radius: 10px;
@@ -53,21 +53,21 @@
             background-color: #0056b3;
         }
 
-        .register-button {
-            background-color: #00aaff;
+        .login-button {
             margin-top: 10px;
+            background-color: #00aaff;
         }
 
-        .register-button:hover {
+        .login-button:hover {
             background-color: #008bbf;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="login-box">
-            <h2>ورود به حساب</h2>
-          {% with messages = get_flashed_messages() %}
+        <div class="register-box">
+            <h2>ثبت‌نام</h2>
+             {% with messages = get_flashed_messages() %}
     {% if messages %}
         <ul class="flashes">
         {% for message in messages %}
@@ -77,14 +77,17 @@
     {% endif %}
 {% endwith %}
 
-            <form action="/login" method="POST">
+            <form action="/register" method="POST">
+                <input type="text" name="first_name" placeholder="نام" required>
+                <input type="text" name="last_name" placeholder="نام خانوادگی" required>
                 <input type="email" name="email" placeholder="ایمیل" required>
                 <input type="password" name="password" placeholder="رمز عبور" required>
-                <button type="submit">ورود</button>
+ <input type="text" name="referral_link" value="{{ referral_code }}" readonly>
+        
+                <button type="submit">ثبت‌نام</button>
             </form>
-            <button class="register-button" onclick="window.location.href='{{ url_for('register') }}'">ثبت‌نام کنید</button>
+            <button class="login-button" onclick="window.location.href='/login'">قبلاً ثبت‌نام کرده‌اید؟ ورود کنید</button>
         </div>
-<p>تعداد کاربران فعال: {{ user_count }}</p>
     </div>
 </body>
 </html>

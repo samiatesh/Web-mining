@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد ماینینگ</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            width: 100%;
+            margin: auto;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            border-bottom: 2px solid #444;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: white;
+            background-color: #222;
+            margin: 0 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab:hover {
+            background-color: #444;
+        }
+        .tab.active {
+            background-color: #007BFF;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .upgrade-btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .upgrade-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .logout-button {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .logout-button:hover {
+            background-color: #d32f2f;
+        }
+.adContainer {
+            margin: 20px auto;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        #adFrame {
+            width: 100%; /* اندازه iframe */
+            height: 900px; /* ارتفاع iframe */
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .showAdBtn {
+            display: block;
+            width: 80%;
+            max-width: 250px;
+            margin: 10px auto;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .showAdBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #confirmBtn {
+            display: none; /* دکمه "تبلیغ را دیدم" ابتدا مخفی باشد */
+            background-color: #28a745;
+        }
+
+        #confirmBtn:hover {
+            background-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+
+<h2> خوش آمدید، {{ user[0] }} {{ user[1] }} </h2>
+<p> ایمیل شما: {{ user[2] }} </p>
+
+<a href="{{ url_for('logout') }}" class="logout-button">خروج از حساب</a>
+
+<div class="container">
+    <h1>داشبورد</h1>
+
+    <!-- تب‌ها -->
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('income')">درآمد</div>
+        <div class="tab" onclick="showTab('ad_income')">درآمد از تبلیغات</div>
+        <div class="tab" onclick="showTab('referral')">ریفرال</div>
+        <div class="tab" onclick="showTab('payment')">پرداخت</div>
+    </div>
+
+    <!-- محتویات تب‌ها -->
+
+    <!-- تب درآمد -->
+    <div id="income" class="tab-content active">
+        <h2>درآمد شما</h2>
+        <p>بالانس کل: <span id="total_balance">{{ user[4] }}</span> AF</p>
+        <p>سرعت درامد: <span id="hash_speed">{{ user[6] }}</span> درامد/ثانیه</p>
+        <p>محاسبه درآمد حاصل شده: <span id="total_hashes">{{ user[5] }}</span></p>
+
+        <h3>ارتقای سرعت درامد</h3>
+        <p> سطح فعلی شما: <span id="current_level">{{ user[7] }}</span></p>
+        <button class="upgrade-btn" id="upgrade_btn" onclick="upgradeLevel()">ارتقا سطح</button>
+
+    <div class="required-text">بخاطر بالا بردن سرعت درامد تان باید سطح خود را ارتقا دهید  با رسیدن موجودی به مقدار تایین شده آن سطح میتوانید سطح خود را ارتقا دهید .</div> 
+
+    <div class="required-text">سطح اول=0.0001</div>
+    <div class="required-text">سطح دوم = 0.0005</div>
+    <div class="required-text">سطح سوم = 0.001</div>
+    <div class="required-text">سطح چهارم = 0.005</div>
+    <div class="required-text">سطح پنجم =0.01</div>
+    <div class="required-text"> سطح ششم =0.05</div>
+    <div class="required-text">سطح هفتم =0.1</div>
+</div>
+    <div id="ad_income" class="tab-content" style="display: none;">
+    <h2>درآمد از تبلیغات</h2>
+    <button id="showAdBtn">نمایش تبلیغ</button>
+    <div id="adContainer" style="display: none;">
+        <iframe id="adFrame"></iframe>
+        <div id="timer">6</div>
+        <button id="confirmBtn" style="display: none;">من تبلیغ را دیدم</button>
+    </div>
+</div>
+    <!-- تب ریفرال -->
+    <div id="referral" class="tab-content">
+        <h2>سیستم ریفرال</h2>
+        <p>تعداد ریفرال‌ها: {{ referral_count }}</p>
+        <p>لینک ریفرال شما: <a href="{{ url_for('register', referral_link=user[3]) }}">{{ user[3] }}</a></p>
+        <p><strong>{{ referral_income }}</strong> واحد</p>
+    </div>
+
+    <!-- تب پرداخت -->
+   <div id="payment" class="tab-content">
+    <h2>درخواست پرداخت</h2>
+    <p>حداقل مقدار برای برداشت:25 AF</p>
+    <p>موجودی: <span id="total_balance_payment">{{ user[4] }}</span> AF</p>
+
+    <label>مقدار برداشت:</label>
+    <input type="number" id="amount" min="25" step="25" oninput="validateWithdrawAmount()"><br><br>
+
+    <label> شماره تلفن برای پرداخت پول کردیت:</label>
+    <input type="number" id="phone"><br><br>
+
+   <button type="submit" class="upgrade-btn" id="withdraw_button" onclick="requestWithdrawal()">درخواست برداشت</button>
+
+    <div id="flash-message" style="
+        display: none;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        text-align: center;
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 5px;
+        z-index: 1000;">
+        ✅ درخواست شما موفقانه ارسال شد و منتظر پرداخت باشید
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        let tabs = document.querySelectorAll('.tab-content');
+        let tabButtons = document.querySelectorAll('.tab');
+
+        tabs.forEach(tab => tab.classList.remove('active'));
+        tabButtons.forEach(button => button.classList.remove('active'));
+        tabs.forEach(tab => tab.style.display = 'none');
+
+        document.getElementById(tabName).style.display = 'block';
+
+        let activeTab = document.getElementById(tabName);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+
+        let clickedTab = event.currentTarget;
+        if (clickedTab) {
+            clickedTab.classList.add('active');
+        }
+    }
+
+    let balance = parseFloat("{{ user[4] }}") || 0;
+    let level = parseInt("{{ user[7] }}") || 1;
+    let speed = parseInt("{{ user[6] }}") || 5;
+    let hashes = parseInt("{{ user[5] }}") || 0;
+    let upgradeCosts = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1];
+
+    function upgradeLevel() {
+        fetch('/upgrade_level', {method: 'POST'})
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert("سطح شما ارتقا یافت!");
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        }).catch(error => console.error('خطا در ارتقا سطح:', error));
+    }
+
+     function requestWithdrawal() {
+        let phone = document.getElementById('phone').value;
+        let amount = parseFloat(document.getElementById('amount').value);
+
+        if (amount >= 25 && amount <= balance && phone) {
+            fetch('/withdraw', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({amount: amount, phone: phone})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("مشکلی در ارتباط با سرور وجود دارد.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "success") {
+                    alert("درخواست برداشت ثبت شد!");
+                    balance -= amount;  // کاهش موجودی در سمت کلاینت
+                    document.getElementById("total_balance").innerText = balance.toFixed(4);
+                    document.getElementById("total_balance_payment").innerText = balance.toFixed(4);
+                    document.getElementById('flash-message').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('flash-message').style.display = 'none';
+                    }, 3000); // نمایش پیام به مدت 3 ثانیه
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("خطا در درخواست:", error);
+                alert("خط��������یی رخ داد. لطفاً مجدداً امتحان کنید.");
+            });
+        } else {
+            alert("مقدار درخواست شما باید بیشتر از 25AFوبرابر به موجودی شما باشد و همچنین در پرداخت اعداد بعد از اعشار محاسبه نمیشود  و همچنین شماره تلفن رادرست وارد کنید.");
+        }
+    }
+
+    function startMining() {
+        let hashesInInterval = 0;
+
+        setInterval(() => {
+            hashes += speed;
+            hashesInInterval += speed;
+            document.getElementById("total_hashes").innerText = hashes;
+        }, 1000);
+
+        setInterval(() => {
+            if (hashesInInterval > 0) {
+                balance += hashesInInterval * 0.00000007;
+                fetch('/update_mining', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({hashes: hashes, balance: balance})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Mining data updated successfully", data);
+                    document.getElementById("total_balance").innerText = balance.toFixed(8);
+                    document.getElementById("total_balance_payment").innerText = balance.toFixed(8);
+                })
+                .catch(error => console.error('Error updating mining data:', error));
+                hashesInInterval = 0;
+            }
+        }, 600000);
+    }
+
+    startMining();
+document.addEventListener("DOMContentLoaded", function() {
+    let withdrawButton = document.getElementById("withdraw_button");
+    let amountInput = document.querySelector("input[name='amount']");
+    
+    amountInput.addEventListener("input", function() {
+        if (parseFloat(amountInput.value) >= 0.0005 && parseFloat(amountInput.value) <= balance) {
+            withdrawButton.removeAttribute("disabled");
+        } else {
+            withdrawButton.setAttribute("disabled", "true");
+        }
+    });
+});
+
+    let ads = [
+        "https://example.com/ad1",
+        "https://example.com/ad2",
+        "https://example.com/ad3"
+    ];
+    let currentAdIndex = 0;
+
+    document.getElementById("showAdBtn").addEventListener("click", function () {
+        if (currentAdIndex >= ads.length) {
+            alert("تمام تبلیغات دیده شده‌اند.");
+            return;
+        }
+
+        document.getElementById("adFrame").src = ads[currentAdIndex];
+        document.getElementById("adContainer").style.display = "block";
+        document.getElementById("confirmBtn").style.display = "none";
+        let timeLeft = 60;
+        document.getElementById("timer").innerText = timeLeft;
+
+        let countdown = setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                document.getElementById("confirmBtn").style.display = "inline-block";
+            }
+        }, 1000);
+    });
+
+    document.getElementById("confirmBtn").addEventListener("click", function () {
+        fetch("/add_reward", { method: "POST" })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+            }
+        });
+
+        currentAdIndex++;
+        if (currentAdIndex < ads.length) {
+            document.getElementById("showAdBtn").click();
+        } else {
+            document.getElementById("adContainer").style.display = "none";
+            alert("تمام تبلیغات به پایان رسید.");
+        }
+    }); 
+
+</script>
+
+</body>
+</html>
