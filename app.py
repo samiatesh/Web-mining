@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.secret_key = 'your_secret_key'
 print("🚀 اجرای `init_db()` برای ایجاد جداول...")
-init_db()
+
 print("✅ دیتابیس ایجاد شد!")
 
 # انتخاب مسیر دیتابیس بر اساس محیط اجرا (لوکال یا Render)
