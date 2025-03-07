@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import logging
 import os
-from database import init_db
+
 
 
 
