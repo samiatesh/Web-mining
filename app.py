@@ -45,32 +45,41 @@ def init_db():
     conn = get_db()
     if conn is not None:
         cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        first_name TEXT NOT NULL,
-                        last_name TEXT NOT NULL,
-                        email TEXT UNIQUE NOT NULL,
-                        password TEXT NOT NULL,
-                        referral_link TEXT UNIQUE,
-                        referrer_id INTEGER,
-                        total_balance REAL DEFAULT 0,
-                        mining_hashed INTEGER DEFAULT 0,
-                        mining_speed INTEGER DEFAULT 5,
-                        level INTEGER DEFAULT 1,
-                        FOREIGN KEY(referrer_id) REFERENCES users(id))''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS referrals (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_id INTEGER,
-                        referral_user_id INTEGER,
-                        FOREIGN KEY(user_id) REFERENCES users(id),
-                        FOREIGN KEY(referral_user_id) REFERENCES users(id))''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS transactions (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_id INTEGER,
-                        amount REAL,
-                        FOREIGN KEY(user_id) REFERENCES users(id))''')
-    conn.commit()
-    conn.close()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            first_name TEXT NOT NULL,
+                            last_name TEXT NOT NULL,
+                            email TEXT UNIQUE NOT NULL,
+                            password TEXT NOT NULL,
+                            referral_link TEXT UNIQUE,
+                            referrer_id INTEGER,
+                            total_balance REAL DEFAULT 0,
+                            mining_hashed INTEGER DEFAULT 0,
+                            mining_speed INTEGER DEFAULT 5,
+                            level INTEGER DEFAULT 1,
+                            FOREIGN KEY(referrer_id) REFERENCES users(id))''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS referrals (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            user_id INTEGER,
+                            referral_user_id INTEGER,
+                            FOREIGN KEY(user_id) REFERENCES users(id),
+                            FOREIGN KEY(referral_user_id) REFERENCES users(id))''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS transactions (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            user_id INTEGER,
+                            amount REAL,
+                            FOREIGN KEY(user_id) REFERENCES users(id))''')
+        conn.commit()
+        conn.close()
+
+# فراخوانی init_db() در هنگام شروع
+@app.before_first_request
+def before_first_request():
+    """
+    این تابع قبل از اولین درخواست به سرور فراخوانی می‌شود
+    و جدول‌ها را در صورت نیاز ایجاد می‌کند.
+    """
+    init_db()
 # ایجاد پایگاه داده و جدول‌های مورد نیاز
 def update_database():
     try:
